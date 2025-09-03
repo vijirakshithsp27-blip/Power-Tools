@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: power-tools-deployment
+  labels:
+    app: power-tools
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: power-tools
+  template:
+    metadata:
+      labels:
+        app: power-tools
+    spec:
+      containers:
+        - name: power-tools
+          
+          image: 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
+          ports:
+            - containerPort: 80
