@@ -5,25 +5,26 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws --version
-      - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
-      - REPOSITORY_URI=<AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/power-tools-catalog
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
+      - REPOSITORY_URI=676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
 
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
-      - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
-      - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:latest
-
+      - docker build -t 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog:latest .
+      
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing Docker image to ECR...
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - docker push $REPOSITORY_URI:latest
+      - docker push 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
       - echo Writing image definitions file...
-      - printf '[{"name":"power-tools","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - printf '[{"name":"power-tools","imageUri":"%s"}]' 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog > imagedefinitions.json
 
 artifacts:
-  files: imagedefinitions.json
+  files: 
+    - imagedefinitions.json
+    - k8r/deployment.yaml
+    - k8r/service.yaml
