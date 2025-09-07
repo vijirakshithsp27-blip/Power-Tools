@@ -16,8 +16,7 @@ phases:
       - cat ~/.kube/config
       
       - echo "Testing kubectl version"
-      - kubectl version --short
-      
+      - kubectl version
       - echo "Fetching aws-auth configmap"
       - kubectl get configmap aws-auth -n kube-system -o yaml
 
