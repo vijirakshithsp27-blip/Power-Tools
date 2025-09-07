@@ -11,7 +11,8 @@ phases:
       - aws sts get-caller-identity
 
       - echo "Updating kubeconfig for EKS..."
-      - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name interesting-disco-party
+      - mkdir -p ./kube
+      - aws eks update-kubeconfig --region ap-south-1 --name interesting-disco-party --kubeconfig ./kube/config
       
       - echo "Contents of kubeconfig:"
       - cat ~/.kube/config
