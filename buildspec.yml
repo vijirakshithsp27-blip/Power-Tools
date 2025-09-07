@@ -24,7 +24,6 @@ phases:
       - echo Testing EKS access
       - kubectl get nodes
 
-
   build:
     commands:
       - echo Build started on `date`
@@ -36,7 +35,6 @@ phases:
       - echo Build completed on `date`
       - echo Pushing Docker image to ECR...
       - docker push $REPOSITORY_URI:latest
-
       - echo Writing image definitions file...
       - printf '[{"name":"power-tools","imageUri":"%s"}]' $REPOSITORY_URI > imagedefinitions.json
 
