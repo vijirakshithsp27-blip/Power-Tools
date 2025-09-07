@@ -8,6 +8,7 @@ phases:
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 676206907395.dkr.ecr.ap-south-1.amazonaws.com
       - REPOSITORY_URI=676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - aws sts get-caller-identity
 
       - echo "Updating kubeconfig for EKS..."
       - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name interesting-disco-party
