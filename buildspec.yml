@@ -24,9 +24,13 @@ phases:
       - docker push 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
       - echo Writing image definitions file...
       - printf '[{"name":"power-tools","imageUri":"%s"}]' 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog > imagedefinitions.json
-      - echo Deploying to EKS...
-      - kubectl apply -f k8s/deployment.yaml
-      - kubectl apply -f k8s/service.yaml
+      - echo Updating kubeconfig for EKS...
+      - mkdir -p ~/.kube
+      - aws eks update-kubeconfig --name interesting-disco-party --region ap-south-1 --kubeconfig ~/.kube/config
+      - export KUBECONFIG=~/.kube/config
+      - aws sts get-caller-identity
+      - kubectl get svc
+      - kubectl apply -f k8s/deployment.yaml --validate=false
 artifacts:
   files: 
     - imagedefinitions.json
