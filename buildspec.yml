@@ -13,9 +13,10 @@ phases:
       - echo "Updating kubeconfig for EKS..."
       - mkdir -p ./kube
       - aws eks update-kubeconfig --region ap-south-1 --name interesting-disco-party --kubeconfig ./kube/config
+      - export KUBECONFIG=./kube/config
       
       - echo "Contents of kubeconfig:"
-      - cat ~/.kube/config
+      - cat ./kube/config
       
       - echo "Testing kubectl version"
       - kubectl version
