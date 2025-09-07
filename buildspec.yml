@@ -9,8 +9,8 @@ phases:
       - REPOSITORY_URI=676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - echo "Logging in to Amazon EKS..."
-      - aws eks update-kubeconfig --name interesting-disco-party --region ap-south-1
-
+      - aws eks update-kubeconfig --region ap-south-1 --name interesting-disco-party --kubeconfig ~/.kube/config
+      - export KUBECONFIG=~/.kube/config
   build:
     commands:
       - echo Build started on `date`
@@ -24,13 +24,9 @@ phases:
       - docker push 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
       - echo Writing image definitions file...
       - printf '[{"name":"power-tools","imageUri":"%s"}]' 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog > imagedefinitions.json
-      - echo Updating kubeconfig for EKS...
-      - mkdir -p ~/.kube
-      - aws eks update-kubeconfig --name interesting-disco-party --region ap-south-1 --kubeconfig ~/.kube/config
-      - export KUBECONFIG=~/.kube/config
-      - aws sts get-caller-identity
-      - kubectl get svc
-      - kubectl apply -f k8s/deployment.yaml --validate=false
+      - echo Applying Kubernetes manifests...
+      - kubectl apply -f k8r/deployment.yaml --validate=false
+      - kubectl apply -f k8r/service.yaml --validate=false
 artifacts:
   files: 
     - imagedefinitions.json
