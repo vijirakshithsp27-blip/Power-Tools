@@ -8,23 +8,22 @@ phases:
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 676206907395.dkr.ecr.ap-south-1.amazonaws.com
       - REPOSITORY_URI=676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - echo Checking AWS CLI path
+      - AWS_PATH=$(which aws)
+      - echo AWS CLI is at: $AWS_PATH
+      - echo Checking AWS identity
       - aws sts get-caller-identity
-
-      - echo "Updating kubeconfig for EKS..."
+      - echo Updating kubeconfig for EKS...
       - mkdir -p ./kube
       - aws eks update-kubeconfig --region ap-south-1 --name interesting-disco-party --kubeconfig ./kube/config
       - export KUBECONFIG=./kube/config
-      
-      - echo "Contents of kubeconfig:"
+      - echo Patching kubeconfig exec.command to correct AWS CLI path dynamically...
+      - sed -i "s|command: aws|command: $AWS_PATH|g" ./kube/config
+      - echo Contents of kubeconfig:
       - cat ./kube/config
-      
-      - echo "Testing kubectl version"
-      - kubectl version
-      - echo "Fetching aws-auth configmap"
-      - kubectl get configmap aws-auth -n kube-system -o yaml
-
-      - echo "Fetching nodes from cluster"
+      - echo Testing EKS access
       - kubectl get nodes
+
 
   build:
     commands:
