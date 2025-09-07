@@ -11,7 +11,9 @@ phases:
       - echo Updating kubeconfig for EKS...
       - aws eks update-kubeconfig --region ap-south-1 --name interesting-disco-party --kubeconfig ~/.kube/config
       - echo testing k8r connections
-      - kubectl get nodes --kubeconfig ~/.kube/config
+      - export KUBECONFIG=/root/.kube/config
+      - kubectl get configmap aws-auth -n kube-system -o yaml
+      - kubectl get nodes 
      
   build:
     commands:
@@ -27,8 +29,8 @@ phases:
       - echo Writing image definitions file...
       - printf '[{"name":"power-tools","imageUri":"%s"}]' 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog > imagedefinitions.json
       - echo Applying Kubernetes manifests...
-      - kubectl apply --kubeconfig ~/.kube/config -f k8r/deployment.yaml --validate=false
-      - kubectl apply --kubeconfig ~/.kube/config -f k8r/service.yaml --validate=false
+      - kubectl apply -f k8r/deployment.yaml --validate=false
+      - kubectl apply -f k8r/service.yaml --validate=false
 
 artifacts:
   files: 
