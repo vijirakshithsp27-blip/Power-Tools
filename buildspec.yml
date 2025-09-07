@@ -2,18 +2,27 @@ version: 0.2
 
 phases:
   pre_build:
-    commands:
-      - echo Logging in to Amazon ECR...
-      - aws --version
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
-      - REPOSITORY_URI=676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
-      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - echo Updating kubeconfig for EKS...
-      - aws eks update-kubeconfig --region ap-south-1 --name interesting-disco-party --kubeconfig /root/.kube/config
-      - echo testing k8r connections
-      - export KUBECONFIG=/root/.kube/config
-      - kubectl get configmap aws-auth -n kube-system -o yaml
-      - kubectl get nodes 
+  commands:
+    - echo Logging in to Amazon ECR...
+    - aws --version
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
+    - REPOSITORY_URI=676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
+    - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+    - echo Updating kubeconfig for EKS...
+    - aws eks update-kubeconfig --region ap-south-1 --name interesting-disco-party --kubeconfig /root/.kube/config
+    - echo Exporting KUBECONFIG variable...
+    - export KUBECONFIG=/root/.kube/config
+    - echo DEBUG: List contents of /root/.kube/
+    - ls -al /root/.kube/
+    - echo DEBUG: Check kubeconfig file contents
+    - cat /root/.kube/config
+    - echo DEBUG: Attempt kubectl version
+    - kubectl version --short --kubeconfig /root/.kube/config
+    - echo DEBUG: Attempt to get aws-auth configmap
+    - kubectl get configmap aws-auth -n kube-system -o yaml --kubeconfig /root/.kube/config
+    - echo DEBUG: Attempt to get nodes
+    - kubectl get nodes --kubeconfig /root/.kube/config
+
      
   build:
     commands:
