@@ -8,12 +8,12 @@ phases:
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
       - REPOSITORY_URI=676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - cat /root/.kube/config
-      - aws sts get-caller-identity
-      - aws eks update-kubeconfig --region ap-south-1 --name interesting-disco-party --kubeconfig /root/.kube/config
-      - export KUBECONFIG=/root/.kube/config
-      - kubectl get configmap aws-auth -n kube-system -o yaml --kubeconfig /root/.kube/config
-      - kubectl get nodes --kubeconfig /root/.kube/config
+      - echo Updating kubeconfig for EKS...
+      - mkdir -p ~/.kube
+      - aws eks update-kubeconfig --region ap-south-1 --name interesting-disco-party
+      - echo Testing EKS connection
+      - kubectl get configmap aws-auth -n kube-system -o yaml
+      - kubectl get nodes
      
 
   build:
