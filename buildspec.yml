@@ -12,6 +12,8 @@ phases:
       - export KUBECONFIG=/root/.kube/config
       - kubectl get configmap aws-auth -n kube-system -o yaml --kubeconfig /root/.kube/config
       - kubectl get nodes --kubeconfig /root/.kube/config
+      - cat /root/.kube/config
+      - aws sts get-caller-identity
 
   build:
     commands:
