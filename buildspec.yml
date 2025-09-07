@@ -10,6 +10,8 @@ phases:
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - echo Updating kubeconfig for EKS...
       - aws eks update-kubeconfig --region ap-south-1 --name interesting-disco-party --kubeconfig ~/.kube/config
+      - echo testing k8r connections
+      - kubectl get nodes --kubeconfig ~/.kube/config
      
   build:
     commands:
