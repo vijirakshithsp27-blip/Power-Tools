@@ -9,7 +9,7 @@ phases:
       - REPOSITORY_URI=676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - echo Updating kubeconfig for EKS...
-      - aws eks update-kubeconfig --region ap-south-1 --name interesting-disco-party --kubeconfig ~/.kube/config
+      - aws eks update-kubeconfig --region ap-south-1 --name interesting-disco-party --kubeconfig /root/.kube/config
       - echo testing k8r connections
       - export KUBECONFIG=/root/.kube/config
       - kubectl get configmap aws-auth -n kube-system -o yaml
