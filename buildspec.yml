@@ -24,6 +24,9 @@ phases:
       - docker push 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
       - echo Writing image definitions file...
       - printf '[{"name":"power-tools","imageUri":"%s"}]' 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog > imagedefinitions.json
+      - echo Deploying to EKS...
+      - kubectl apply -f k8s/deployment.yaml
+      - kubectl apply -f k8s/service.yaml
 
 artifacts:
   files: 
