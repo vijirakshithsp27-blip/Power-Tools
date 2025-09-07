@@ -5,29 +5,42 @@ phases:
     commands:
       - echo Logging in to Amazon ECR...
       - aws --version
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 676206907395.dkr.ecr.ap-south-1.amazonaws.com
       - REPOSITORY_URI=676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - echo Updating kubeconfig for EKS...
-      - mkdir -p ~/.kube
-      - aws eks update-kubeconfig --region ap-south-1 --name interesting-disco-party
-      - echo Testing EKS connection
+
+      - echo "Updating kubeconfig for EKS..."
+      - aws eks update-kubeconfig --region $AWS_DEFAULT_REGION --name interesting-disco-party
+      
+      - echo "Contents of kubeconfig:"
+      - cat ~/.kube/config
+      
+      - echo "Testing kubectl version"
+      - kubectl version --short
+      
+      - echo "Fetching aws-auth configmap"
       - kubectl get configmap aws-auth -n kube-system -o yaml
+
+      - echo "Fetching nodes from cluster"
       - kubectl get nodes
-     
 
   build:
     commands:
-      - echo Building the Docker image...
-      - docker build -t 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog:latest .
+      - echo Build started on `date`
+      - echo Building Docker image...
+      - docker build -t $REPOSITORY_URI:latest .
 
   post_build:
     commands:
-      - docker push 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
-      - printf '[{"name":"power-tools","imageUri":"%s"}]' 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog > imagedefinitions.json
-      - kubectl apply -f k8r/deployment.yaml --validate=false --kubeconfig /root/.kube/config
-      - kubectl apply -f k8r/service.yaml --validate=false --kubeconfig /root/.kube/config
+      - echo Build completed on `date`
+      - echo Pushing Docker image to ECR...
+      - docker push $REPOSITORY_URI:latest
+
+      - echo Writing image definitions file...
+      - printf '[{"name":"power-tools","imageUri":"%s"}]' $REPOSITORY_URI > imagedefinitions.json
 
 artifacts:
   files:
     - imagedefinitions.json
+    - k8r/deployment.yaml
+    - k8r/service.yaml
