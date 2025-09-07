@@ -2,34 +2,32 @@ version: 0.2
 
 phases:
   pre_build:
-  commands:
-    - echo Logging in to Amazon ECR...
-    - aws --version
-    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
-    - REPOSITORY_URI=676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
-    - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-    - echo Updating kubeconfig for EKS...
-    - aws eks update-kubeconfig --region ap-south-1 --name interesting-disco-party --kubeconfig /root/.kube/config
-    - echo Exporting KUBECONFIG variable...
-    - export KUBECONFIG=/root/.kube/config
-    - echo DEBUG: List contents of /root/.kube/
-    - ls -al /root/.kube/
-    - echo DEBUG: Check kubeconfig file contents
-    - cat /root/.kube/config
-    - echo DEBUG: Attempt kubectl version
-    - kubectl version --short --kubeconfig /root/.kube/config
-    - echo DEBUG: Attempt to get aws-auth configmap
-    - kubectl get configmap aws-auth -n kube-system -o yaml --kubeconfig /root/.kube/config
-    - echo DEBUG: Attempt to get nodes
-    - kubectl get nodes --kubeconfig /root/.kube/config
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
+      - REPOSITORY_URI=676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - echo Updating kubeconfig for EKS...
+      - aws eks update-kubeconfig --region ap-south-1 --name interesting-disco-party --kubeconfig /root/.kube/config
+      - export KUBECONFIG=/root/.kube/config
+      - echo DEBUG: List contents of /root/.kube/
+      - ls -al /root/.kube/
+      - echo DEBUG: Show kubeconfig file contents
+      - cat /root/.kube/config
+      - echo DEBUG: Check kubectl version
+      - kubectl version --short --kubeconfig /root/.kube/config
+      - echo DEBUG: Get aws-auth configmap
+      - kubectl get configmap aws-auth -n kube-system -o yaml --kubeconfig /root/.kube/config
+      - echo DEBUG: Get nodes
+      - kubectl get nodes --kubeconfig /root/.kube/config
 
-     
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
       - docker build -t 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog:latest .
-      
+
   post_build:
     commands:
       - echo Build completed on `date`
@@ -38,10 +36,9 @@ phases:
       - echo Writing image definitions file...
       - printf '[{"name":"power-tools","imageUri":"%s"}]' 676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog > imagedefinitions.json
       - echo Applying Kubernetes manifests...
-      - kubectl apply -f k8r/deployment.yaml --validate=false
-      - kubectl apply -f k8r/service.yaml --validate=false
+      - kubectl apply -f k8r/deployment.yaml --validate=false --kubeconfig /root/.kube/config
+      - kubectl apply -f k8r/service.yaml --validate=false --kubeconfig /root/.kube/config
 
 artifacts:
-  files: 
+  files:
     - imagedefinitions.json
-   
