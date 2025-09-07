@@ -1,6 +1,12 @@
 version: 0.2
 
 phases:
+ install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      - echo Installing dependencies
+      - pip install awscli
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
@@ -8,20 +14,15 @@ phases:
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 676206907395.dkr.ecr.ap-south-1.amazonaws.com
       - REPOSITORY_URI=676206907395.dkr.ecr.ap-south-1.amazonaws.com/power-tools-catalog
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - echo Checking AWS CLI path
-      - AWS_PATH=$(which aws)
-      - echo AWS CLI is at: $AWS_PATH
-      - echo Checking AWS identity
+      - echo "Starting pre_build phase"
       - aws sts get-caller-identity
-      - echo Updating kubeconfig for EKS...
+      - echo "Updating kubeconfig for EKS..."
       - mkdir -p ./kube
       - aws eks update-kubeconfig --region ap-south-1 --name interesting-disco-party --kubeconfig ./kube/config
       - export KUBECONFIG=./kube/config
-      - echo Patching kubeconfig exec.command to correct AWS CLI path dynamically...
-      - sed -i "s|command: aws|command: $AWS_PATH|g" ./kube/config
-      - echo Contents of kubeconfig:
+      - echo "Contents of kubeconfig:"
       - cat ./kube/config
-      - echo Testing EKS access
+      - echo "Testing kubectl access..."
       - kubectl get nodes
 
   build:
